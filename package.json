@@ -9,6 +9,10 @@
   },
   "author": "Gordon Larrigan <gordonlarrigan@gmail.com> (https://gordonlarrigan.com)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/basementuniverse/input-manager.git"
+  },
   "dependencies": {
     "@basementuniverse/vec": "^1.0.0"
   },
