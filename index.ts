@@ -111,8 +111,8 @@ export default class InputManager {
     instance.previousMouseState = {
       ...instance.mouseState,
       position: vec.cpy(instance.mouseState.position),
-      wheel: 0,
     };
+    instance.mouseState.wheel = 0;
   }
 
   /**
