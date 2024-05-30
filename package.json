@@ -1,6 +1,6 @@
 {
   "name": "@basementuniverse/input-manager",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A component for handling input events and managing input device state",
   "main": "build/index.js",
   "types": "build/index.d.ts",
