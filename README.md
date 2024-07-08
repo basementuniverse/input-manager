@@ -2,6 +2,12 @@
 
 A component for handling input events and managing input device state.
 
+## Installation
+
+```bash
+npm install @basementuniverse/input-manager
+```
+
 ## How to use
 
 Initialise the input manager before use:
@@ -72,11 +78,3 @@ InputManager.initialise(options);
 | `mouse` | `boolean` | `true` | Enable mouse input |
 | `mouseWheel` | `boolean` | `true` | Enable mouse wheel input |
 | `keyboard` | `boolean` | `true` | Enable keyboard input |
-
-## Other components
-
-* [Camera](https://www.npmjs.com/package/@basementuniverse/camera)
-* [Content Manager](https://www.npmjs.com/package/@basementuniverse/content-manager)
-* [Debug](https://www.npmjs.com/package/@basementuniverse/debug)
-* [Input Manager](https://www.npmjs.com/package/@basementuniverse/input-manager)
-* [Scene Manager](https://www.npmjs.com/package/@basementuniverse/scene-manager)
