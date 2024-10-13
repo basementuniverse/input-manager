@@ -2,6 +2,13 @@ import { vec } from '@basementuniverse/vec';
 
 export type InputOptions = {
   /**
+   * The element on which to track mouse input
+   *
+   * Defaults to the window
+   */
+  element: Window | HTMLElement;
+
+  /**
    * Whether to track mouse input
    */
   mouse: boolean;
@@ -15,10 +22,15 @@ export type InputOptions = {
    * Whether to track keyboard input
    */
   keyboard: boolean;
+
+  /**
+   * Whether to prevent the context menu from appearing on right-click
+   */
+  preventContextMenu: boolean;
 };
 
 export type MouseState = {
-  button: boolean,
+  buttons: Record<number, boolean>,
   position: vec,
   wheel: number
 };
@@ -31,41 +43,41 @@ export default class InputManager {
   private static instance: InputManager;
 
   private static readonly defaultOptions: InputOptions = {
+    element: window,
     mouse: true,
     mouseWheel: true,
     keyboard: true,
+    preventContextMenu: false,
   };
 
   private options: InputOptions;
 
-  private keyboardState: KeyboardState = {};
+  private keyboardState: KeyboardState = InputManager.initialKeyboardState();
+  private previousKeyboardState: KeyboardState = InputManager.initialKeyboardState();
 
-  private previousKeyboardState: KeyboardState = {};
-
-  private mouseState: MouseState = { button: false, position: vec(), wheel: 0 };
-
-  private previousMouseState: MouseState = { button: false, position: vec(), wheel: 0 };
+  private mouseState: MouseState = InputManager.initialMouseState();
+  private previousMouseState: MouseState = InputManager.initialMouseState();
 
   private constructor(options?: Partial<InputOptions>) {
     this.options = Object.assign({}, InputManager.defaultOptions, options ?? {});
 
     // Set up event handlers
     if (this.options.mouse) {
-      window.addEventListener('mousedown', () => {
-        this.mouseState.button = true;
+      this.options.element.addEventListener('mousedown', e => {
+        this.mouseState.buttons[(e as MouseEvent).button] = true;
       });
-      window.addEventListener('mouseup', () => {
-        this.mouseState.button = false;
+      this.options.element.addEventListener('mouseup', e => {
+        this.mouseState.buttons[(e as MouseEvent).button] = false;
       });
-      window.addEventListener('touchstart', () => {
-        this.mouseState.button = true;
+      this.options.element.addEventListener('touchstart', () => {
+        this.mouseState.buttons[0] = true;
       });
-      window.addEventListener('touchend', () => {
-        this.mouseState.button = false;
+      this.options.element.addEventListener('touchend', () => {
+        this.mouseState.buttons[0] = false;
       });
-      window.addEventListener('mousemove', e => {
-        this.mouseState.position.x = e.offsetX;
-        this.mouseState.position.y = e.offsetY;
+      this.options.element.addEventListener('mousemove', e => {
+        this.mouseState.position.x = (e as MouseEvent).offsetX;
+        this.mouseState.position.y = (e as MouseEvent).offsetY;
       });
       if (this.options.mouseWheel) {
         window.addEventListener('wheel', e => {
@@ -79,6 +91,13 @@ export default class InputManager {
       });
       window.addEventListener('keyup', e => {
         this.keyboardState[e.code] = false;
+      });
+    }
+
+    // Prevent the context menu from appearing on right-click
+    if (this.options.preventContextMenu) {
+      this.options.element.addEventListener('contextmenu', e => {
+        e.preventDefault();
       });
     }
   }
@@ -101,17 +120,34 @@ export default class InputManager {
     return InputManager.instance;
   }
 
+  private static initialKeyboardState(): KeyboardState {
+    return {};
+  }
+
+  private static initialMouseState(): MouseState {
+    return { buttons: {}, position: vec(), wheel: 0 };
+  }
+
+  private static copyKeyboardState(state: KeyboardState): KeyboardState {
+    return Object.assign({}, state);
+  }
+
+  private static copyMouseState(state: MouseState): MouseState {
+    return {
+      buttons: Object.assign({}, state.buttons),
+      position: vec.cpy(state.position),
+      wheel: state.wheel,
+    };
+  }
+
   /**
    * Update the state of the input devices
    */
   public static update() {
     const instance = InputManager.getInstance();
 
-    instance.previousKeyboardState = Object.assign({}, instance.keyboardState);
-    instance.previousMouseState = {
-      ...instance.mouseState,
-      position: vec.cpy(instance.mouseState.position),
-    };
+    instance.previousKeyboardState = this.copyKeyboardState(instance.keyboardState);
+    instance.previousMouseState = this.copyMouseState(instance.mouseState);
     instance.mouseState.wheel = 0;
   }
 
@@ -122,7 +158,7 @@ export default class InputManager {
     const instance = InputManager.getInstance();
 
     // Check if any key is down
-    if (!code) {
+    if (code === undefined) {
       for (const k in instance.keyboardState) {
         if (instance.keyboardState[k]) {
           return true;
@@ -141,7 +177,7 @@ export default class InputManager {
     const instance = InputManager.getInstance();
 
     // Check if any key was pressed
-    if (!code) {
+    if (code === undefined) {
       for (const k in instance.keyboardState) {
         if (
           instance.keyboardState[k] &&
@@ -156,7 +192,10 @@ export default class InputManager {
       return false;
     }
 
-    return !!instance.keyboardState[code] && !instance.previousKeyboardState[code];
+    return (
+      !!instance.keyboardState[code] &&
+      !instance.previousKeyboardState[code]
+    );
   }
 
   /**
@@ -166,7 +205,7 @@ export default class InputManager {
     const instance = InputManager.getInstance();
 
     // Check if any key was released
-    if (!code) {
+    if (code === undefined) {
       for (const k in instance.keyboardState) {
         if (
           !instance.keyboardState[k] &&
@@ -178,34 +217,82 @@ export default class InputManager {
       return false;
     }
 
-    return !instance.keyboardState[code] && !!instance.previousKeyboardState[code];
+    return (
+      !instance.keyboardState[code] &&
+      !!instance.previousKeyboardState[code]
+    );
   }
 
   /**
    * Check if a mouse button is currently pressed down
    */
-  public static mouseDown(): boolean {
+  public static mouseDown(button?: number): boolean {
     const instance = InputManager.getInstance();
 
-    return !!instance.mouseState.button;
+    // Check if any button is down
+    if (button === undefined) {
+      for (const b in instance.mouseState.buttons) {
+        if (instance.mouseState.buttons[b]) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    return !!instance.mouseState.buttons[button];
   }
 
   /**
    * Check if a mouse button has been pressed since the last frame
    */
-  public static mousePressed(): boolean {
+  public static mousePressed(button?: number): boolean {
     const instance = InputManager.getInstance();
 
-    return !!instance.mouseState.button && !instance.previousMouseState.button;
+    // Check if any button was pressed
+    if (button === undefined) {
+      for (const b in instance.mouseState.buttons) {
+        if (
+          instance.mouseState.buttons[b] &&
+          (
+            !(b in instance.previousMouseState.buttons) ||
+            !instance.previousMouseState.buttons[b]
+          )
+        ) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    return (
+      !!instance.mouseState.buttons[button] &&
+      !instance.previousMouseState.buttons[button]
+    );
   }
 
   /**
    * Check if a mouse button has been released since the last frame
    */
-  public static mouseReleased(): boolean {
+  public static mouseReleased(button?: number): boolean {
     const instance = InputManager.getInstance();
 
-    return !instance.mouseState.button && !!instance.previousMouseState.button;
+    // Check if any button was released
+    if (button === undefined) {
+      for (const b in instance.mouseState.buttons) {
+        if (
+          !instance.mouseState.buttons[b] &&
+          !!instance.previousMouseState.buttons[b]
+        ) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    return (
+      !instance.mouseState.buttons[button] &&
+      !!instance.previousMouseState.buttons[button]
+    );
   }
 
   /**

@@ -1,6 +1,12 @@
 import { vec } from '@basementuniverse/vec';
 export type InputOptions = {
     /**
+     * The element on which to track mouse input
+     *
+     * Defaults to the window
+     */
+    element: Window | HTMLElement;
+    /**
      * Whether to track mouse input
      */
     mouse: boolean;
@@ -12,9 +18,13 @@ export type InputOptions = {
      * Whether to track keyboard input
      */
     keyboard: boolean;
+    /**
+     * Whether to prevent the context menu from appearing on right-click
+     */
+    preventContextMenu: boolean;
 };
 export type MouseState = {
-    button: boolean;
+    buttons: Record<number, boolean>;
     position: vec;
     wheel: number;
 };
@@ -35,6 +45,10 @@ export default class InputManager {
      */
     static initialise(options?: Partial<InputOptions>): void;
     private static getInstance;
+    private static initialKeyboardState;
+    private static initialMouseState;
+    private static copyKeyboardState;
+    private static copyMouseState;
     /**
      * Update the state of the input devices
      */
@@ -54,15 +68,15 @@ export default class InputManager {
     /**
      * Check if a mouse button is currently pressed down
      */
-    static mouseDown(): boolean;
+    static mouseDown(button?: number): boolean;
     /**
      * Check if a mouse button has been pressed since the last frame
      */
-    static mousePressed(): boolean;
+    static mousePressed(button?: number): boolean;
     /**
      * Check if a mouse button has been released since the last frame
      */
-    static mouseReleased(): boolean;
+    static mouseReleased(button?: number): boolean;
     /**
      * Check if the mousewheel is scrolling up
      */

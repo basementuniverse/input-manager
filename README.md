@@ -37,7 +37,7 @@ Check the state of input devices:
 InputManager.keyDown();
 
 // Check if a specific key is currently down
-InputManager.keyDown(code);
+InputManager.keyDown(code?);
 
 // Check if a key was pressed
 InputManager.keyPressed(code?);
@@ -46,13 +46,13 @@ InputManager.keyPressed(code?);
 InputManager.keyReleased(code?);
 
 // Check if the main mouse button is currently down
-InputManager.mouseDown();
+InputManager.mouseDown(button?);
 
 // Check if the main mouse button was pressed
-InputManager.mousePressed();
+InputManager.mousePressed(button?);
 
 // Check if the main mouse button was released
-InputManager.mouseReleased();
+InputManager.mouseReleased(button?);
 
 // Check if the mouse wheel was scrolled up
 InputManager.mouseWheelUp();
@@ -75,6 +75,8 @@ InputManager.initialise(options);
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
+| `element` | `Window \| HTMLElement` | `window` | The element to listen for mouse input events on |
 | `mouse` | `boolean` | `true` | Enable mouse input |
 | `mouseWheel` | `boolean` | `true` | Enable mouse wheel input |
 | `keyboard` | `boolean` | `true` | Enable keyboard input |
+| `preventContextMenu` | `boolean` | `false` | Try to prevent the context menu from appearing on right-click |
