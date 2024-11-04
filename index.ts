@@ -29,10 +29,16 @@ export type InputOptions = {
   preventContextMenu: boolean;
 };
 
+export enum MouseButton {
+  Left = 0,
+  Middle = 1,
+  Right = 2,
+}
+
 export type MouseState = {
-  buttons: Record<number, boolean>,
-  position: vec,
-  wheel: number
+  buttons: { [key in MouseButton]: boolean };
+  position: vec;
+  wheel: number;
 };
 
 export type KeyboardState = {
@@ -64,10 +70,10 @@ export default class InputManager {
     // Set up event handlers
     if (this.options.mouse) {
       this.options.element.addEventListener('mousedown', e => {
-        this.mouseState.buttons[(e as MouseEvent).button] = true;
+        this.mouseState.buttons[(e as MouseEvent).button as MouseButton] = true;
       });
       this.options.element.addEventListener('mouseup', e => {
-        this.mouseState.buttons[(e as MouseEvent).button] = false;
+        this.mouseState.buttons[(e as MouseEvent).button as MouseButton] = false;
       });
       this.options.element.addEventListener('touchstart', () => {
         this.mouseState.buttons[0] = true;
@@ -125,7 +131,15 @@ export default class InputManager {
   }
 
   private static initialMouseState(): MouseState {
-    return { buttons: {}, position: vec(), wheel: 0 };
+    return {
+      buttons: {
+        [MouseButton.Left]: false,
+        [MouseButton.Middle]: false,
+        [MouseButton.Right]: false,
+      },
+      position: vec(),
+      wheel: 0,
+    };
   }
 
   private static copyKeyboardState(state: KeyboardState): KeyboardState {
@@ -226,13 +240,14 @@ export default class InputManager {
   /**
    * Check if a mouse button is currently pressed down
    */
-  public static mouseDown(button?: number): boolean {
+  public static mouseDown(button?: MouseButton): boolean {
     const instance = InputManager.getInstance();
 
     // Check if any button is down
     if (button === undefined) {
       for (const b in instance.mouseState.buttons) {
-        if (instance.mouseState.buttons[b]) {
+        const currentButton = +b as MouseButton;
+        if (instance.mouseState.buttons[currentButton]) {
           return true;
         }
       }
@@ -245,17 +260,18 @@ export default class InputManager {
   /**
    * Check if a mouse button has been pressed since the last frame
    */
-  public static mousePressed(button?: number): boolean {
+  public static mousePressed(button?: MouseButton): boolean {
     const instance = InputManager.getInstance();
 
     // Check if any button was pressed
     if (button === undefined) {
       for (const b in instance.mouseState.buttons) {
+        const currentButton = +b as MouseButton;
         if (
-          instance.mouseState.buttons[b] &&
+          instance.mouseState.buttons[currentButton] &&
           (
             !(b in instance.previousMouseState.buttons) ||
-            !instance.previousMouseState.buttons[b]
+            !instance.previousMouseState.buttons[currentButton]
           )
         ) {
           return true;
@@ -273,15 +289,16 @@ export default class InputManager {
   /**
    * Check if a mouse button has been released since the last frame
    */
-  public static mouseReleased(button?: number): boolean {
+  public static mouseReleased(button?: MouseButton): boolean {
     const instance = InputManager.getInstance();
 
     // Check if any button was released
     if (button === undefined) {
       for (const b in instance.mouseState.buttons) {
+        const currentButton = +b as MouseButton;
         if (
-          !instance.mouseState.buttons[b] &&
-          !!instance.previousMouseState.buttons[b]
+          !instance.mouseState.buttons[currentButton] &&
+          !!instance.previousMouseState.buttons[currentButton]
         ) {
           return true;
         }

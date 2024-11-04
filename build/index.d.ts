@@ -23,8 +23,15 @@ export type InputOptions = {
      */
     preventContextMenu: boolean;
 };
+export declare enum MouseButton {
+    Left = 0,
+    Middle = 1,
+    Right = 2
+}
 export type MouseState = {
-    buttons: Record<number, boolean>;
+    buttons: {
+        [key in MouseButton]: boolean;
+    };
     position: vec;
     wheel: number;
 };
@@ -68,15 +75,15 @@ export default class InputManager {
     /**
      * Check if a mouse button is currently pressed down
      */
-    static mouseDown(button?: number): boolean;
+    static mouseDown(button?: MouseButton): boolean;
     /**
      * Check if a mouse button has been pressed since the last frame
      */
-    static mousePressed(button?: number): boolean;
+    static mousePressed(button?: MouseButton): boolean;
     /**
      * Check if a mouse button has been released since the last frame
      */
-    static mouseReleased(button?: number): boolean;
+    static mouseReleased(button?: MouseButton): boolean;
     /**
      * Check if the mousewheel is scrolling up
      */
