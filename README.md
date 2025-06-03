@@ -62,6 +62,9 @@ InputManager.mouseWheelDown();
 
 // Get the current mouse position in screen-space
 const position = InputManager.mousePosition;
+
+// Get the currently hovered HTML element (or null if there isn't one)
+const hoveredElement = InputManager.hoveredElement;
 ```
 
 See [here](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code) for a reference of key codes.

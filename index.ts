@@ -39,6 +39,7 @@ export type MouseState = {
   buttons: { [key in MouseButton]: boolean };
   position: vec;
   wheel: number;
+  hoveredElement?: HTMLElement | null;
 };
 
 export type KeyboardState = {
@@ -84,6 +85,7 @@ export default class InputManager {
       this.options.element.addEventListener('mousemove', e => {
         this.mouseState.position.x = (e as MouseEvent).offsetX;
         this.mouseState.position.y = (e as MouseEvent).offsetY;
+        this.mouseState.hoveredElement = e.target as HTMLElement;
       });
       if (this.options.mouseWheel) {
         window.addEventListener('wheel', e => {
@@ -139,6 +141,7 @@ export default class InputManager {
       },
       position: vec(),
       wheel: 0,
+      hoveredElement: null,
     };
   }
 
@@ -151,6 +154,7 @@ export default class InputManager {
       buttons: Object.assign({}, state.buttons),
       position: vec.cpy(state.position),
       wheel: state.wheel,
+      hoveredElement: state.hoveredElement,
     };
   }
 
@@ -337,5 +341,14 @@ export default class InputManager {
     const instance = InputManager.getInstance();
 
     return instance.mouseState.position;
+  }
+
+  /**
+   * Get the currently hovered element
+   */
+  public static get hoveredElement(): HTMLElement | null {
+    const instance = InputManager.getInstance();
+
+    return instance.mouseState.hoveredElement ?? null;
   }
 }

@@ -34,6 +34,7 @@ export type MouseState = {
     };
     position: vec;
     wheel: number;
+    hoveredElement?: HTMLElement | null;
 };
 export type KeyboardState = {
     [key: string]: boolean;
@@ -96,4 +97,8 @@ export default class InputManager {
      * Get the current mouse position in screen-space
      */
     static get mousePosition(): vec;
+    /**
+     * Get the currently hovered element
+     */
+    static get hoveredElement(): HTMLElement | null;
 }
