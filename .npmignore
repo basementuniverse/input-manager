@@ -1,5 +1,6 @@
 .editorconfig
 .gitignore
+.prettierrc
 index.ts
 tsconfig.json
 webpack.config.js

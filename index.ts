@@ -1,4 +1,4 @@
-import { vec } from '@basementuniverse/vec';
+import { vec2 } from '@basementuniverse/vec';
 
 export type InputOptions = {
   /**
@@ -37,7 +37,7 @@ export enum MouseButton {
 
 export type MouseState = {
   buttons: { [key in MouseButton]: boolean };
-  position: vec;
+  position: vec2;
   wheel: number;
   hoveredElement?: HTMLElement | null;
 };
@@ -48,8 +48,7 @@ export type KeyboardState = {
 
 export default class InputManager {
   private static instance: InputManager;
-
-  private static readonly defaultOptions: InputOptions = {
+  private static readonly DEFAULT_OPTIONS: InputOptions = {
     element: window,
     mouse: true,
     mouseWheel: true,
@@ -58,15 +57,18 @@ export default class InputManager {
   };
 
   private options: InputOptions;
-
   private keyboardState: KeyboardState = InputManager.initialKeyboardState();
-  private previousKeyboardState: KeyboardState = InputManager.initialKeyboardState();
-
+  private previousKeyboardState: KeyboardState =
+    InputManager.initialKeyboardState();
   private mouseState: MouseState = InputManager.initialMouseState();
   private previousMouseState: MouseState = InputManager.initialMouseState();
 
   private constructor(options?: Partial<InputOptions>) {
-    this.options = Object.assign({}, InputManager.defaultOptions, options ?? {});
+    this.options = Object.assign(
+      {},
+      InputManager.DEFAULT_OPTIONS,
+      options ?? {}
+    );
 
     // Set up event handlers
     if (this.options.mouse) {
@@ -74,7 +76,8 @@ export default class InputManager {
         this.mouseState.buttons[(e as MouseEvent).button as MouseButton] = true;
       });
       this.options.element.addEventListener('mouseup', e => {
-        this.mouseState.buttons[(e as MouseEvent).button as MouseButton] = false;
+        this.mouseState.buttons[(e as MouseEvent).button as MouseButton] =
+          false;
       });
       this.options.element.addEventListener('touchstart', () => {
         this.mouseState.buttons[0] = true;
@@ -139,7 +142,7 @@ export default class InputManager {
         [MouseButton.Middle]: false,
         [MouseButton.Right]: false,
       },
-      position: vec(),
+      position: vec2(),
       wheel: 0,
       hoveredElement: null,
     };
@@ -152,7 +155,7 @@ export default class InputManager {
   private static copyMouseState(state: MouseState): MouseState {
     return {
       buttons: Object.assign({}, state.buttons),
-      position: vec.cpy(state.position),
+      position: vec2.cpy(state.position),
       wheel: state.wheel,
       hoveredElement: state.hoveredElement,
     };
@@ -164,7 +167,9 @@ export default class InputManager {
   public static update() {
     const instance = InputManager.getInstance();
 
-    instance.previousKeyboardState = this.copyKeyboardState(instance.keyboardState);
+    instance.previousKeyboardState = this.copyKeyboardState(
+      instance.keyboardState
+    );
     instance.previousMouseState = this.copyMouseState(instance.mouseState);
     instance.mouseState.wheel = 0;
   }
@@ -199,10 +204,8 @@ export default class InputManager {
       for (const k in instance.keyboardState) {
         if (
           instance.keyboardState[k] &&
-          (
-            !(k in instance.previousKeyboardState) ||
-            !instance.previousKeyboardState[k]
-          )
+          (!(k in instance.previousKeyboardState) ||
+            !instance.previousKeyboardState[k])
         ) {
           return true;
         }
@@ -211,8 +214,7 @@ export default class InputManager {
     }
 
     return (
-      !!instance.keyboardState[code] &&
-      !instance.previousKeyboardState[code]
+      !!instance.keyboardState[code] && !instance.previousKeyboardState[code]
     );
   }
 
@@ -225,10 +227,7 @@ export default class InputManager {
     // Check if any key was released
     if (code === undefined) {
       for (const k in instance.keyboardState) {
-        if (
-          !instance.keyboardState[k] &&
-          !!instance.previousKeyboardState[k]
-        ) {
+        if (!instance.keyboardState[k] && !!instance.previousKeyboardState[k]) {
           return true;
         }
       }
@@ -236,8 +235,7 @@ export default class InputManager {
     }
 
     return (
-      !instance.keyboardState[code] &&
-      !!instance.previousKeyboardState[code]
+      !instance.keyboardState[code] && !!instance.previousKeyboardState[code]
     );
   }
 
@@ -273,10 +271,8 @@ export default class InputManager {
         const currentButton = +b as MouseButton;
         if (
           instance.mouseState.buttons[currentButton] &&
-          (
-            !(b in instance.previousMouseState.buttons) ||
-            !instance.previousMouseState.buttons[currentButton]
-          )
+          (!(b in instance.previousMouseState.buttons) ||
+            !instance.previousMouseState.buttons[currentButton])
         ) {
           return true;
         }
@@ -337,7 +333,7 @@ export default class InputManager {
   /**
    * Get the current mouse position in screen-space
    */
-  public static get mousePosition(): vec {
+  public static get mousePosition(): vec2 {
     const instance = InputManager.getInstance();
 
     return instance.mouseState.position;

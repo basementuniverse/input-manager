@@ -14,7 +14,7 @@
     "url": "git+https://github.com/basementuniverse/input-manager.git"
   },
   "dependencies": {
-    "@basementuniverse/vec": "^1.0.0"
+    "@basementuniverse/vec": "^2.3.5"
   },
   "devDependencies": {
     "@types/node": "^18.11.12",
