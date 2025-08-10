@@ -1,4 +1,4 @@
-import { vec } from '@basementuniverse/vec';
+import { vec2 } from '@basementuniverse/vec';
 export type InputOptions = {
     /**
      * The element on which to track mouse input
@@ -32,7 +32,7 @@ export type MouseState = {
     buttons: {
         [key in MouseButton]: boolean;
     };
-    position: vec;
+    position: vec2;
     wheel: number;
     hoveredElement?: HTMLElement | null;
 };
@@ -41,7 +41,7 @@ export type KeyboardState = {
 };
 export default class InputManager {
     private static instance;
-    private static readonly defaultOptions;
+    private static readonly DEFAULT_OPTIONS;
     private options;
     private keyboardState;
     private previousKeyboardState;
@@ -96,7 +96,7 @@ export default class InputManager {
     /**
      * Get the current mouse position in screen-space
      */
-    static get mousePosition(): vec;
+    static get mousePosition(): vec2;
     /**
      * Get the currently hovered element
      */

@@ -2,16 +2,19 @@
   "name": "@basementuniverse/input-manager",
   "version": "1.4.0",
   "description": "A component for handling input events and managing input device state",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
-  "scripts": {
-    "build": "webpack"
-  },
   "author": "Gordon Larrigan <gordonlarrigan@gmail.com> (https://gordonlarrigan.com)",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/basementuniverse/input-manager.git"
+  },
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "webpack"
   },
   "dependencies": {
     "@basementuniverse/vec": "^2.3.5"
