@@ -79,11 +79,22 @@ export default class InputManager {
         this.mouseState.buttons[(e as MouseEvent).button as MouseButton] =
           false;
       });
-      this.options.element.addEventListener('touchstart', () => {
+      this.options.element.addEventListener('touchstart', e => {
+        const touch = (e as TouchEvent).touches[0];
+        this.mouseState.position.x = touch.clientX;
+        this.mouseState.position.y = touch.clientY;
         this.mouseState.buttons[0] = true;
       });
-      this.options.element.addEventListener('touchend', () => {
+      this.options.element.addEventListener('touchend', e => {
+        const touch = (e as TouchEvent).changedTouches[0];
+        this.mouseState.position.x = touch.clientX;
+        this.mouseState.position.y = touch.clientY;
         this.mouseState.buttons[0] = false;
+      });
+      this.options.element.addEventListener('touchmove', e => {
+        const touch = (e as TouchEvent).touches[0];
+        this.mouseState.position.x = touch.clientX;
+        this.mouseState.position.y = touch.clientY;
       });
       this.options.element.addEventListener('mousemove', e => {
         this.mouseState.position.x = (e as MouseEvent).offsetX;
