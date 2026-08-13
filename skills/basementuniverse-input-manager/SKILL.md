@@ -26,10 +26,14 @@ Use this skill when you need to:
 2. Call `InputManager.update()` every frame before reading transient input state.
 3. Use the polling methods to detect input.
 4. Treat `keyPressed`, `keyReleased`, `mousePressed`, `mouseReleased`, `mouseWheelUp`, and `mouseWheelDown` as frame-scoped checks.
+5. Call `InputManager.dispose()` on teardown to remove listeners and reset the singleton (required before re-initialising, e.g. on remount).
 
 ## Important Behavior
 
-- `InputManager` throws if initialised more than once.
+- `InputManager` throws if initialised more than once; call `dispose()` first to re-initialise.
+- `dispose()` removes all event listeners and resets the singleton; it is a no-op if not initialised.
+- `isInitialised()` reports whether the singleton is currently initialised.
+- Held keys and mouse buttons are released automatically when the window loses focus (`blur`).
 - Query methods throw if used before initialisation.
 - `update()` copies current state to previous state and resets the mouse wheel delta.
 - `mouseDown()`, `mousePressed()`, and `mouseReleased()` accept an optional `MouseButton` value.

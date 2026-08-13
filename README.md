@@ -30,6 +30,17 @@ class Game {
 }
 ```
 
+Tear the input manager down when it is no longer needed (this removes all event
+listeners and resets the singleton so that `initialise` can safely be called
+again, e.g. when a component is unmounted and remounted):
+
+```ts
+InputManager.dispose();
+
+// Check whether the input manager is currently initialised
+InputManager.isInitialised();
+```
+
 Check the state of input devices:
 
 ```ts

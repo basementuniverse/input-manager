@@ -46,8 +46,18 @@ export type KeyboardState = {
   [key: string]: boolean;
 };
 
+/**
+ * A registered event listener, tracked so that it can be removed when the
+ * input manager is disposed
+ */
+type RegisteredListener = {
+  target: Window | HTMLElement;
+  type: string;
+  handler: EventListener;
+};
+
 export default class InputManager {
-  private static instance: InputManager;
+  private static instance: InputManager | undefined;
   private static readonly DEFAULT_OPTIONS: InputOptions = {
     element: window,
     mouse: true,
@@ -63,6 +73,9 @@ export default class InputManager {
   private mouseState: MouseState = InputManager.initialMouseState();
   private previousMouseState: MouseState = InputManager.initialMouseState();
 
+  // Track registered listeners so they can be removed on dispose
+  private listeners: RegisteredListener[] = [];
+
   private constructor(options?: Partial<InputOptions>) {
     this.options = Object.assign(
       {},
@@ -72,56 +85,72 @@ export default class InputManager {
 
     // Set up event handlers
     if (this.options.mouse) {
-      this.options.element.addEventListener('mousedown', e => {
+      this.addListener(this.options.element, 'mousedown', e => {
         this.mouseState.buttons[(e as MouseEvent).button as MouseButton] = true;
       });
-      this.options.element.addEventListener('mouseup', e => {
+      this.addListener(this.options.element, 'mouseup', e => {
         this.mouseState.buttons[(e as MouseEvent).button as MouseButton] =
           false;
       });
-      this.options.element.addEventListener('touchstart', e => {
+      this.addListener(this.options.element, 'touchstart', e => {
         const touch = (e as TouchEvent).touches[0];
         this.mouseState.position.x = touch.clientX;
         this.mouseState.position.y = touch.clientY;
         this.mouseState.buttons[0] = true;
       });
-      this.options.element.addEventListener('touchend', e => {
+      this.addListener(this.options.element, 'touchend', e => {
         const touch = (e as TouchEvent).changedTouches[0];
         this.mouseState.position.x = touch.clientX;
         this.mouseState.position.y = touch.clientY;
         this.mouseState.buttons[0] = false;
       });
-      this.options.element.addEventListener('touchmove', e => {
+      this.addListener(this.options.element, 'touchmove', e => {
         const touch = (e as TouchEvent).touches[0];
         this.mouseState.position.x = touch.clientX;
         this.mouseState.position.y = touch.clientY;
       });
-      this.options.element.addEventListener('mousemove', e => {
+      this.addListener(this.options.element, 'mousemove', e => {
         this.mouseState.position.x = (e as MouseEvent).offsetX;
         this.mouseState.position.y = (e as MouseEvent).offsetY;
         this.mouseState.hoveredElement = e.target as HTMLElement;
       });
       if (this.options.mouseWheel) {
-        window.addEventListener('wheel', e => {
-          this.mouseState.wheel = e.deltaY > 0 ? 1 : -1;
+        this.addListener(window, 'wheel', e => {
+          this.mouseState.wheel = (e as WheelEvent).deltaY > 0 ? 1 : -1;
         });
       }
     }
     if (this.options.keyboard) {
-      window.addEventListener('keydown', e => {
-        this.keyboardState[e.code] = true;
+      this.addListener(window, 'keydown', e => {
+        this.keyboardState[(e as KeyboardEvent).code] = true;
       });
-      window.addEventListener('keyup', e => {
-        this.keyboardState[e.code] = false;
+      this.addListener(window, 'keyup', e => {
+        this.keyboardState[(e as KeyboardEvent).code] = false;
       });
     }
 
+    // Release any held keys/buttons when the window loses focus, otherwise a
+    // key held while focus is lost would remain stuck down
+    this.addListener(window, 'blur', () => {
+      this.keyboardState = InputManager.initialKeyboardState();
+      this.mouseState.buttons = InputManager.initialMouseState().buttons;
+    });
+
     // Prevent the context menu from appearing on right-click
     if (this.options.preventContextMenu) {
-      this.options.element.addEventListener('contextmenu', e => {
+      this.addListener(this.options.element, 'contextmenu', e => {
         e.preventDefault();
       });
     }
+  }
+
+  private addListener(
+    target: Window | HTMLElement,
+    type: string,
+    handler: EventListener
+  ) {
+    target.addEventListener(type, handler);
+    this.listeners.push({ target, type, handler });
   }
 
   /**
@@ -132,6 +161,33 @@ export default class InputManager {
       throw new Error('Input manager already initialised');
     }
     InputManager.instance = new InputManager(options);
+  }
+
+  /**
+   * Tear down the input manager, removing all event listeners and resetting
+   * the singleton instance
+   *
+   * After calling this, `initialise` can safely be called again. This is
+   * particularly useful in environments where the input manager is created and
+   * destroyed multiple times, e.g. when a component is mounted and unmounted.
+   */
+  public static dispose() {
+    if (InputManager.instance === undefined) {
+      return;
+    }
+
+    for (const { target, type, handler } of InputManager.instance.listeners) {
+      target.removeEventListener(type, handler);
+    }
+    InputManager.instance.listeners = [];
+    InputManager.instance = undefined;
+  }
+
+  /**
+   * Check whether the input manager has been initialised
+   */
+  public static isInitialised(): boolean {
+    return InputManager.instance !== undefined;
   }
 
   private static getInstance(): InputManager {

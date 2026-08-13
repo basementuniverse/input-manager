@@ -9,6 +9,12 @@
 ### `InputManager.initialise(options?: Partial<InputOptions>): void`
 Initialises the singleton and registers event listeners.
 
+### `InputManager.dispose(): void`
+Removes all registered event listeners and resets the singleton instance. Safe to call when not initialised (no-op). After disposing, `initialise()` can be called again — useful when mounting/unmounting repeatedly.
+
+### `InputManager.isInitialised(): boolean`
+Returns whether the singleton is currently initialised.
+
 ### `InputManager.update(): void`
 Copies the current input state to the previous state and clears transient wheel input. Call once per frame before polling edge-triggered methods.
 

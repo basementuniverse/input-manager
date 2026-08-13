@@ -47,11 +47,26 @@ export default class InputManager {
     private previousKeyboardState;
     private mouseState;
     private previousMouseState;
+    private listeners;
     private constructor();
+    private addListener;
     /**
      * Initialise the input manager for managing mouse and keyboard input
      */
     static initialise(options?: Partial<InputOptions>): void;
+    /**
+     * Tear down the input manager, removing all event listeners and resetting
+     * the singleton instance
+     *
+     * After calling this, `initialise` can safely be called again. This is
+     * particularly useful in environments where the input manager is created and
+     * destroyed multiple times, e.g. when a component is mounted and unmounted.
+     */
+    static dispose(): void;
+    /**
+     * Check whether the input manager has been initialised
+     */
+    static isInitialised(): boolean;
     private static getInstance;
     private static initialKeyboardState;
     private static initialMouseState;
