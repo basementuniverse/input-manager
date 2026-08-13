@@ -14,7 +14,8 @@
     "build"
   ],
   "scripts": {
-    "build": "webpack"
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development"
   },
   "dependencies": {
     "@basementuniverse/vec": "^2.3.5"

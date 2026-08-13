@@ -1,8 +1,8 @@
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-module.exports = {
-  mode: process.env.NODE_ENV || 'development',
+module.exports = (env, argv) => ({
+  mode: argv.mode || 'development',
   entry: './index.ts',
   // devtool: 'inline-source-map',
   watchOptions: {
@@ -25,7 +25,6 @@ module.exports = {
   },
   output: {
     libraryTarget: 'umd',
-    publicPath: '/build/',
     filename: 'index.js',
     path: path.resolve(__dirname, 'build'),
   },
@@ -38,4 +37,4 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
   ],
-};
+});
