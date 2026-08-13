@@ -25,7 +25,6 @@ module.exports = (env, argv) => ({
   },
   output: {
     libraryTarget: 'umd',
-    libraryExport: 'default',
     filename: 'index.js',
     path: path.resolve(__dirname, 'build'),
   },

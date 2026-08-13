@@ -1,51 +1,5 @@
 import { vec2 } from '@basementuniverse/vec';
 
-export type InputOptions = {
-  /**
-   * The element on which to track mouse input
-   *
-   * Defaults to the window
-   */
-  element: Window | HTMLElement;
-
-  /**
-   * Whether to track mouse input
-   */
-  mouse: boolean;
-
-  /**
-   * Whether to track the mouse wheel
-   */
-  mouseWheel: boolean;
-
-  /**
-   * Whether to track keyboard input
-   */
-  keyboard: boolean;
-
-  /**
-   * Whether to prevent the context menu from appearing on right-click
-   */
-  preventContextMenu: boolean;
-};
-
-export enum MouseButton {
-  Left = 0,
-  Middle = 1,
-  Right = 2,
-}
-
-export type MouseState = {
-  buttons: { [key in MouseButton]: boolean };
-  position: vec2;
-  wheel: number;
-  hoveredElement?: HTMLElement | null;
-};
-
-export type KeyboardState = {
-  [key: string]: boolean;
-};
-
 /**
  * A registered event listener, tracked so that it can be removed when the
  * input manager is disposed
@@ -56,9 +10,9 @@ type RegisteredListener = {
   handler: EventListener;
 };
 
-export default class InputManager {
+class InputManager {
   private static instance: InputManager | undefined;
-  private static readonly DEFAULT_OPTIONS: InputOptions = {
+  private static readonly DEFAULT_OPTIONS: InputManager.InputOptions = {
     element: window,
     mouse: true,
     mouseWheel: true,
@@ -66,17 +20,20 @@ export default class InputManager {
     preventContextMenu: false,
   };
 
-  private options: InputOptions;
-  private keyboardState: KeyboardState = InputManager.initialKeyboardState();
-  private previousKeyboardState: KeyboardState =
+  private options: InputManager.InputOptions;
+  private keyboardState: InputManager.KeyboardState =
     InputManager.initialKeyboardState();
-  private mouseState: MouseState = InputManager.initialMouseState();
-  private previousMouseState: MouseState = InputManager.initialMouseState();
+  private previousKeyboardState: InputManager.KeyboardState =
+    InputManager.initialKeyboardState();
+  private mouseState: InputManager.MouseState =
+    InputManager.initialMouseState();
+  private previousMouseState: InputManager.MouseState =
+    InputManager.initialMouseState();
 
   // Track registered listeners so they can be removed on dispose
   private listeners: RegisteredListener[] = [];
 
-  private constructor(options?: Partial<InputOptions>) {
+  private constructor(options?: Partial<InputManager.InputOptions>) {
     this.options = Object.assign(
       {},
       InputManager.DEFAULT_OPTIONS,
@@ -86,11 +43,14 @@ export default class InputManager {
     // Set up event handlers
     if (this.options.mouse) {
       this.addListener(this.options.element, 'mousedown', e => {
-        this.mouseState.buttons[(e as MouseEvent).button as MouseButton] = true;
+        this.mouseState.buttons[
+          (e as MouseEvent).button as InputManager.MouseButton
+        ] = true;
       });
       this.addListener(this.options.element, 'mouseup', e => {
-        this.mouseState.buttons[(e as MouseEvent).button as MouseButton] =
-          false;
+        this.mouseState.buttons[
+          (e as MouseEvent).button as InputManager.MouseButton
+        ] = false;
       });
       this.addListener(this.options.element, 'touchstart', e => {
         const touch = (e as TouchEvent).touches[0];
@@ -156,7 +116,7 @@ export default class InputManager {
   /**
    * Initialise the input manager for managing mouse and keyboard input
    */
-  public static initialise(options?: Partial<InputOptions>) {
+  public static initialise(options?: Partial<InputManager.InputOptions>) {
     if (InputManager.instance !== undefined) {
       throw new Error('Input manager already initialised');
     }
@@ -198,16 +158,16 @@ export default class InputManager {
     return InputManager.instance;
   }
 
-  private static initialKeyboardState(): KeyboardState {
+  private static initialKeyboardState(): InputManager.KeyboardState {
     return {};
   }
 
-  private static initialMouseState(): MouseState {
+  private static initialMouseState(): InputManager.MouseState {
     return {
       buttons: {
-        [MouseButton.Left]: false,
-        [MouseButton.Middle]: false,
-        [MouseButton.Right]: false,
+        [InputManager.MouseButton.Left]: false,
+        [InputManager.MouseButton.Middle]: false,
+        [InputManager.MouseButton.Right]: false,
       },
       position: vec2(),
       wheel: 0,
@@ -215,11 +175,15 @@ export default class InputManager {
     };
   }
 
-  private static copyKeyboardState(state: KeyboardState): KeyboardState {
+  private static copyKeyboardState(
+    state: InputManager.KeyboardState
+  ): InputManager.KeyboardState {
     return Object.assign({}, state);
   }
 
-  private static copyMouseState(state: MouseState): MouseState {
+  private static copyMouseState(
+    state: InputManager.MouseState
+  ): InputManager.MouseState {
     return {
       buttons: Object.assign({}, state.buttons),
       position: vec2.cpy(state.position),
@@ -309,13 +273,13 @@ export default class InputManager {
   /**
    * Check if a mouse button is currently pressed down
    */
-  public static mouseDown(button?: MouseButton): boolean {
+  public static mouseDown(button?: InputManager.MouseButton): boolean {
     const instance = InputManager.getInstance();
 
     // Check if any button is down
     if (button === undefined) {
       for (const b in instance.mouseState.buttons) {
-        const currentButton = +b as MouseButton;
+        const currentButton = +b as InputManager.MouseButton;
         if (instance.mouseState.buttons[currentButton]) {
           return true;
         }
@@ -329,13 +293,13 @@ export default class InputManager {
   /**
    * Check if a mouse button has been pressed since the last frame
    */
-  public static mousePressed(button?: MouseButton): boolean {
+  public static mousePressed(button?: InputManager.MouseButton): boolean {
     const instance = InputManager.getInstance();
 
     // Check if any button was pressed
     if (button === undefined) {
       for (const b in instance.mouseState.buttons) {
-        const currentButton = +b as MouseButton;
+        const currentButton = +b as InputManager.MouseButton;
         if (
           instance.mouseState.buttons[currentButton] &&
           (!(b in instance.previousMouseState.buttons) ||
@@ -356,13 +320,13 @@ export default class InputManager {
   /**
    * Check if a mouse button has been released since the last frame
    */
-  public static mouseReleased(button?: MouseButton): boolean {
+  public static mouseReleased(button?: InputManager.MouseButton): boolean {
     const instance = InputManager.getInstance();
 
     // Check if any button was released
     if (button === undefined) {
       for (const b in instance.mouseState.buttons) {
-        const currentButton = +b as MouseButton;
+        const currentButton = +b as InputManager.MouseButton;
         if (
           !instance.mouseState.buttons[currentButton] &&
           !!instance.previousMouseState.buttons[currentButton]
@@ -415,3 +379,53 @@ export default class InputManager {
     return instance.mouseState.hoveredElement ?? null;
   }
 }
+
+namespace InputManager {
+  export enum MouseButton {
+    Left = 0,
+    Middle = 1,
+    Right = 2,
+  }
+
+  export type InputOptions = {
+    /**
+     * The element on which to track mouse input
+     *
+     * Defaults to the window
+     */
+    element: Window | HTMLElement;
+
+    /**
+     * Whether to track mouse input
+     */
+    mouse: boolean;
+
+    /**
+     * Whether to track the mouse wheel
+     */
+    mouseWheel: boolean;
+
+    /**
+     * Whether to track keyboard input
+     */
+    keyboard: boolean;
+
+    /**
+     * Whether to prevent the context menu from appearing on right-click
+     */
+    preventContextMenu: boolean;
+  };
+
+  export type MouseState = {
+    buttons: { [key in MouseButton]: boolean };
+    position: vec2;
+    wheel: number;
+    hoveredElement?: HTMLElement | null;
+  };
+
+  export type KeyboardState = {
+    [key: string]: boolean;
+  };
+}
+
+export = InputManager;

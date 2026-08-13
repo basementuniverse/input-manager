@@ -1,45 +1,5 @@
 import { vec2 } from '@basementuniverse/vec';
-export type InputOptions = {
-    /**
-     * The element on which to track mouse input
-     *
-     * Defaults to the window
-     */
-    element: Window | HTMLElement;
-    /**
-     * Whether to track mouse input
-     */
-    mouse: boolean;
-    /**
-     * Whether to track the mouse wheel
-     */
-    mouseWheel: boolean;
-    /**
-     * Whether to track keyboard input
-     */
-    keyboard: boolean;
-    /**
-     * Whether to prevent the context menu from appearing on right-click
-     */
-    preventContextMenu: boolean;
-};
-export declare enum MouseButton {
-    Left = 0,
-    Middle = 1,
-    Right = 2
-}
-export type MouseState = {
-    buttons: {
-        [key in MouseButton]: boolean;
-    };
-    position: vec2;
-    wheel: number;
-    hoveredElement?: HTMLElement | null;
-};
-export type KeyboardState = {
-    [key: string]: boolean;
-};
-export default class InputManager {
+declare class InputManager {
     private static instance;
     private static readonly DEFAULT_OPTIONS;
     private options;
@@ -53,7 +13,7 @@ export default class InputManager {
     /**
      * Initialise the input manager for managing mouse and keyboard input
      */
-    static initialise(options?: Partial<InputOptions>): void;
+    static initialise(options?: Partial<InputManager.InputOptions>): void;
     /**
      * Tear down the input manager, removing all event listeners and resetting
      * the singleton instance
@@ -91,15 +51,15 @@ export default class InputManager {
     /**
      * Check if a mouse button is currently pressed down
      */
-    static mouseDown(button?: MouseButton): boolean;
+    static mouseDown(button?: InputManager.MouseButton): boolean;
     /**
      * Check if a mouse button has been pressed since the last frame
      */
-    static mousePressed(button?: MouseButton): boolean;
+    static mousePressed(button?: InputManager.MouseButton): boolean;
     /**
      * Check if a mouse button has been released since the last frame
      */
-    static mouseReleased(button?: MouseButton): boolean;
+    static mouseReleased(button?: InputManager.MouseButton): boolean;
     /**
      * Check if the mousewheel is scrolling up
      */
@@ -117,3 +77,46 @@ export default class InputManager {
      */
     static get hoveredElement(): HTMLElement | null;
 }
+declare namespace InputManager {
+    enum MouseButton {
+        Left = 0,
+        Middle = 1,
+        Right = 2
+    }
+    type InputOptions = {
+        /**
+         * The element on which to track mouse input
+         *
+         * Defaults to the window
+         */
+        element: Window | HTMLElement;
+        /**
+         * Whether to track mouse input
+         */
+        mouse: boolean;
+        /**
+         * Whether to track the mouse wheel
+         */
+        mouseWheel: boolean;
+        /**
+         * Whether to track keyboard input
+         */
+        keyboard: boolean;
+        /**
+         * Whether to prevent the context menu from appearing on right-click
+         */
+        preventContextMenu: boolean;
+    };
+    type MouseState = {
+        buttons: {
+            [key in MouseButton]: boolean;
+        };
+        position: vec2;
+        wheel: number;
+        hoveredElement?: HTMLElement | null;
+    };
+    type KeyboardState = {
+        [key: string]: boolean;
+    };
+}
+export = InputManager;
