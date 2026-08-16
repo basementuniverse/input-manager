@@ -8,6 +8,15 @@ A component for handling input events and managing input device state.
 npm install @basementuniverse/input-manager
 ```
 
+For direct browser usage, include the UMD build with a script tag:
+
+```html
+<script src="build/index.js"></script>
+```
+
+The build exposes the package's main class as the `BasementUniverseInputManager` browser
+global. It does not add each export directly to `window`.
+
 ## How to use
 
 Initialise the input manager before use:
@@ -16,6 +25,23 @@ Initialise the input manager before use:
 import InputManager from '@basementuniverse/input-manager';
 
 InputManager.initialise();
+```
+
+When using the library directly from a browser script, use the
+`BasementUniverseInputManager` global:
+
+```html
+<script src="build/index.js"></script>
+<script>
+  BasementUniverseInputManager.initialise();
+
+  // Every frame:
+  BasementUniverseInputManager.update();
+
+  if (BasementUniverseInputManager.keyPressed('Space')) {
+    // ...
+  }
+</script>
 ```
 
 Update the input manager state:

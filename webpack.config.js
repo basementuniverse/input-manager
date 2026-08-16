@@ -24,7 +24,11 @@ module.exports = (env, argv) => ({
     extensions: ['.tsx', '.ts', '.js'],
   },
   output: {
-    libraryTarget: 'umd',
+    library: {
+      name: 'BasementUniverseInputManager',
+      type: 'umd',
+    },
+    globalObject: 'globalThis',
     filename: 'index.js',
     path: path.resolve(__dirname, 'build'),
   },

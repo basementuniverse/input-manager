@@ -1,5 +1,20 @@
 # Public API
 
+## Browser usage
+
+For direct browser usage, load `build/index.js` with a `<script>` tag and use
+the namespaced global:
+
+```html
+<script src="build/index.js"></script>
+<script>
+	const instance = new BasementUniverseInputManager(/* ... */);
+</script>
+```
+
+The UMD build supports CommonJS `require()` and bundlers, but native ESM
+imports require a separate ESM build that this package does not currently ship.
+
 ## Overview
 
 `InputManager` is a singleton class. Initialise it once, call `update()` every frame, and then poll state through static methods and getters.
