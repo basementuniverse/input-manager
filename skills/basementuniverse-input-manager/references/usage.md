@@ -55,7 +55,7 @@ automatically released when the window loses focus (`blur`).
 
 ## Common Options
 
-- `element`: choose the DOM element that should receive mouse events.
+- `element`: choose the DOM element that should receive mouse, touch and wheel events. Mouse position is relative to this element. Keyboard events and mouse button releases are always tracked on `window`.
 - `mouse`: disable when only keyboard input is needed.
 - `mouseWheel`: disable if wheel input is irrelevant.
 - `keyboard`: disable if you only need pointer input.

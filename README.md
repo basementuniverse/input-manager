@@ -97,7 +97,8 @@ InputManager.mouseWheelUp();
 // Check if the mouse wheel was scrolled down
 InputManager.mouseWheelDown();
 
-// Get the current mouse position in screen-space
+// Get the current mouse position (relative to the element, or the viewport
+// if the element is the window)
 const position = InputManager.mousePosition;
 
 // Get the currently hovered HTML element (or null if there isn't one)
@@ -115,8 +116,15 @@ InputManager.initialise(options);
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `element` | `Window \| HTMLElement` | `window` | The element to listen for mouse input events on |
+| `element` | `Window \| HTMLElement` | `window` | The element to listen for mouse, touch and wheel events on (mouse position will be relative to this element) |
 | `mouse` | `boolean` | `true` | Enable mouse input |
 | `mouseWheel` | `boolean` | `true` | Enable mouse wheel input |
 | `keyboard` | `boolean` | `true` | Enable keyboard input |
 | `preventContextMenu` | `boolean` | `false` | Try to prevent the context menu from appearing on right-click |
+
+Keyboard events are always tracked on `window`, regardless of `element`. This is
+because keyboard events are only dispatched to the focused element, and most
+elements (including `<canvas>`) can't receive focus by default.
+
+Mouse button releases are also tracked on `window`, so a button that is pressed
+inside `element` and released outside of it won't get stuck down.

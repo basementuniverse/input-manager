@@ -60,7 +60,7 @@ Returns whether the wheel scrolled down during the current frame.
 ## Getters
 
 ### `InputManager.mousePosition: vec2`
-Returns the current mouse position in screen-space.
+Returns the current mouse position, relative to the `element` option (or the viewport if `element` is the window).
 
 ### `InputManager.hoveredElement: HTMLElement | null`
 Returns the currently hovered HTML element, if any.

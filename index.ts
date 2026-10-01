@@ -47,39 +47,46 @@ class InputManager {
           (e as MouseEvent).button as InputManager.MouseButton
         ] = true;
       });
-      this.addListener(this.options.element, 'mouseup', e => {
+
+      // Listen for mouseup on the window so that a button pressed inside the
+      // element and released outside of it doesn't remain stuck down
+      this.addListener(window, 'mouseup', e => {
         this.mouseState.buttons[
           (e as MouseEvent).button as InputManager.MouseButton
         ] = false;
       });
       this.addListener(this.options.element, 'touchstart', e => {
         const touch = (e as TouchEvent).touches[0];
-        this.mouseState.position.x = touch.clientX;
-        this.mouseState.position.y = touch.clientY;
+        this.setPosition(touch.clientX, touch.clientY);
         this.mouseState.buttons[0] = true;
       });
       this.addListener(this.options.element, 'touchend', e => {
         const touch = (e as TouchEvent).changedTouches[0];
-        this.mouseState.position.x = touch.clientX;
-        this.mouseState.position.y = touch.clientY;
+        this.setPosition(touch.clientX, touch.clientY);
         this.mouseState.buttons[0] = false;
       });
       this.addListener(this.options.element, 'touchmove', e => {
         const touch = (e as TouchEvent).touches[0];
-        this.mouseState.position.x = touch.clientX;
-        this.mouseState.position.y = touch.clientY;
+        this.setPosition(touch.clientX, touch.clientY);
       });
       this.addListener(this.options.element, 'mousemove', e => {
-        this.mouseState.position.x = (e as MouseEvent).offsetX;
-        this.mouseState.position.y = (e as MouseEvent).offsetY;
+        this.setPosition((e as MouseEvent).clientX, (e as MouseEvent).clientY);
         this.mouseState.hoveredElement = e.target as HTMLElement;
       });
       if (this.options.mouseWheel) {
-        this.addListener(window, 'wheel', e => {
-          this.mouseState.wheel = (e as WheelEvent).deltaY > 0 ? 1 : -1;
+        this.addListener(this.options.element, 'wheel', e => {
+          // Ignore purely horizontal scrolling
+          const deltaY = (e as WheelEvent).deltaY;
+          if (deltaY !== 0) {
+            this.mouseState.wheel = deltaY > 0 ? 1 : -1;
+          }
         });
       }
     }
+
+    // Keyboard events are dispatched to the focused element, and most elements
+    // (including canvases) aren't focusable by default, so we listen on the
+    // window regardless of which element is being used for mouse input
     if (this.options.keyboard) {
       this.addListener(window, 'keydown', e => {
         this.keyboardState[(e as KeyboardEvent).code] = true;
@@ -101,6 +108,23 @@ class InputManager {
       this.addListener(this.options.element, 'contextmenu', e => {
         e.preventDefault();
       });
+    }
+  }
+
+  /**
+   * Set the mouse position from viewport (client) coordinates, converting them
+   * so that they're relative to the element's content area (or the viewport,
+   * if the element is the window)
+   */
+  private setPosition(clientX: number, clientY: number) {
+    const element = this.options.element;
+    if ('getBoundingClientRect' in element) {
+      const rect = element.getBoundingClientRect();
+      this.mouseState.position.x = clientX - rect.left - element.clientLeft;
+      this.mouseState.position.y = clientY - rect.top - element.clientTop;
+    } else {
+      this.mouseState.position.x = clientX;
+      this.mouseState.position.y = clientY;
     }
   }
 
@@ -362,7 +386,8 @@ class InputManager {
   }
 
   /**
-   * Get the current mouse position in screen-space
+   * Get the current mouse position, relative to the element (or the viewport
+   * if the element is the window)
    */
   public static get mousePosition(): vec2 {
     const instance = InputManager.getInstance();
@@ -389,7 +414,11 @@ namespace InputManager {
 
   export type InputOptions = {
     /**
-     * The element on which to track mouse input
+     * The element on which to track mouse, touch and wheel input
+     *
+     * Mouse positions will be relative to this element. Keyboard input is
+     * always tracked on the window, since keyboard events are only dispatched
+     * to the focused element
      *
      * Defaults to the window
      */

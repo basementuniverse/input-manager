@@ -9,6 +9,12 @@ declare class InputManager {
     private previousMouseState;
     private listeners;
     private constructor();
+    /**
+     * Set the mouse position from viewport (client) coordinates, converting them
+     * so that they're relative to the element's content area (or the viewport,
+     * if the element is the window)
+     */
+    private setPosition;
     private addListener;
     /**
      * Initialise the input manager for managing mouse and keyboard input
@@ -69,7 +75,8 @@ declare class InputManager {
      */
     static mouseWheelDown(): boolean;
     /**
-     * Get the current mouse position in screen-space
+     * Get the current mouse position, relative to the element (or the viewport
+     * if the element is the window)
      */
     static get mousePosition(): vec2;
     /**
@@ -85,7 +92,11 @@ declare namespace InputManager {
     }
     type InputOptions = {
         /**
-         * The element on which to track mouse input
+         * The element on which to track mouse, touch and wheel input
+         *
+         * Mouse positions will be relative to this element. Keyboard input is
+         * always tracked on the window, since keyboard events are only dispatched
+         * to the focused element
          *
          * Defaults to the window
          */
