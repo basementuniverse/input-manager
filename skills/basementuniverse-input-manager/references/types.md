@@ -11,6 +11,7 @@ type InputOptions = {
   mouseWheel: boolean;
   keyboard: boolean;
   preventContextMenu: boolean;
+  ignoreEditableTargets: boolean;
 };
 ```
 

@@ -125,10 +125,16 @@ InputManager.initialise(options);
 | `mouseWheel` | `boolean` | `true` | Enable mouse wheel input |
 | `keyboard` | `boolean` | `true` | Enable keyboard input |
 | `preventContextMenu` | `boolean` | `false` | Try to prevent the context menu from appearing on right-click |
+| `ignoreEditableTargets` | `boolean` | `true` | Ignore key presses inside form fields (`<input>`, `<textarea>`, `<select>` and `contenteditable` elements) |
 
 Keyboard events are always tracked on `window`, regardless of `element`. This is
 because keyboard events are only dispatched to the focused element, and most
 elements (including `<canvas>`) can't receive focus by default.
+
+By default, key presses inside form fields are ignored, so typing into (for
+example) a chat box won't trigger game input. Key releases are always tracked,
+so a key that was held down before focus moved into a form field still gets
+released. Set `ignoreEditableTargets: false` to track all key presses.
 
 Mouse button releases are also tracked on `window`, so a button that is pressed
 inside `element` and released outside of it won't get stuck down.

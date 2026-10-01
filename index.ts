@@ -18,6 +18,7 @@ class InputManager {
     mouseWheel: true,
     keyboard: true,
     preventContextMenu: false,
+    ignoreEditableTargets: true,
   };
 
   private options: InputManager.InputOptions;
@@ -90,6 +91,15 @@ class InputManager {
     // window regardless of which element is being used for mouse input
     if (this.options.keyboard) {
       this.addListener(window, 'keydown', e => {
+        // Ignore keys typed into form fields elsewhere on the page. We only
+        // filter keydown, so that a key held before focus moved into a form
+        // field still gets released
+        if (
+          this.options.ignoreEditableTargets &&
+          InputManager.isEditableTarget(e)
+        ) {
+          return;
+        }
         this.keyboardState[(e as KeyboardEvent).code] = true;
       });
       this.addListener(window, 'keyup', e => {
@@ -127,6 +137,25 @@ class InputManager {
       this.mouseState.position.x = clientX;
       this.mouseState.position.y = clientY;
     }
+  }
+
+  /**
+   * Check if an event originated from a form field or editable element
+   */
+  private static isEditableTarget(e: Event): boolean {
+    // Use the composed path so that elements inside a shadow root are found,
+    // rather than the shadow host that the event is retargeted to
+    const target = e.composedPath()[0] ?? e.target;
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    return (
+      target.isContentEditable ||
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target instanceof HTMLSelectElement
+    );
   }
 
   private addListener(
@@ -444,6 +473,15 @@ namespace InputManager {
      * Whether to prevent the context menu from appearing on right-click
      */
     preventContextMenu: boolean;
+
+    /**
+     * Whether to ignore key presses that happen inside form fields (inputs,
+     * textareas, selects and contenteditable elements), so that typing into
+     * other parts of the page doesn't trigger game input
+     *
+     * Defaults to true
+     */
+    ignoreEditableTargets: boolean;
   };
 
   export type MouseState = {

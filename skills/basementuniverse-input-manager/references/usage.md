@@ -60,3 +60,4 @@ automatically released when the window loses focus (`blur`).
 - `mouseWheel`: disable if wheel input is irrelevant.
 - `keyboard`: disable if you only need pointer input.
 - `preventContextMenu`: enable when right-click should not open the browser menu.
+- `ignoreEditableTargets`: enabled by default; key presses inside `<input>`, `<textarea>`, `<select>` and `contenteditable` elements are ignored. Disable to track all key presses.

@@ -15,6 +15,10 @@ declare class InputManager {
      * if the element is the window)
      */
     private setPosition;
+    /**
+     * Check if an event originated from a form field or editable element
+     */
+    private static isEditableTarget;
     private addListener;
     /**
      * Initialise the input manager for managing mouse and keyboard input
@@ -117,6 +121,14 @@ declare namespace InputManager {
          * Whether to prevent the context menu from appearing on right-click
          */
         preventContextMenu: boolean;
+        /**
+         * Whether to ignore key presses that happen inside form fields (inputs,
+         * textareas, selects and contenteditable elements), so that typing into
+         * other parts of the page doesn't trigger game input
+         *
+         * Defaults to true
+         */
+        ignoreEditableTargets: boolean;
     };
     type MouseState = {
         buttons: {
