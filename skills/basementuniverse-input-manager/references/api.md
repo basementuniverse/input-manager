@@ -57,6 +57,8 @@ Returns whether the wheel scrolled up during the current frame.
 ### `InputManager.mouseWheelDown(): boolean`
 Returns whether the wheel scrolled down during the current frame.
 
+Wheel direction follows the browser's `WheelEvent.deltaY`: up means scrolling away from the user (negative `deltaY`). OS-level settings such as macOS "natural scrolling" reverse this, and the browser can't detect them, so games that want an "invert scroll" setting should swap `mouseWheelUp()` / `mouseWheelDown()` themselves.
+
 ## Getters
 
 ### `InputManager.mousePosition: vec2`

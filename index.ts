@@ -75,10 +75,11 @@ class InputManager {
       });
       if (this.options.mouseWheel) {
         this.addListener(this.options.element, 'wheel', e => {
-          // Ignore purely horizontal scrolling
+          // A negative deltaY means the wheel was scrolled up (away from the
+          // user); ignore purely horizontal scrolling
           const deltaY = (e as WheelEvent).deltaY;
           if (deltaY !== 0) {
-            this.mouseState.wheel = deltaY > 0 ? 1 : -1;
+            this.mouseState.wheel = deltaY < 0 ? 1 : -1;
           }
         });
       }

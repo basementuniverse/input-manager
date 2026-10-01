@@ -107,6 +107,10 @@ const hoveredElement = InputManager.hoveredElement;
 
 See [here](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code) for a reference of key codes.
 
+Mouse wheel "up" means scrolling away from the user (a negative
+[`deltaY`](https://developer.mozilla.org/en-US/docs/Web/API/WheelEvent/deltaY)).
+Note that OS-level settings such as macOS "natural scrolling" reverse this.
+
 ## Options
 
 ```ts
